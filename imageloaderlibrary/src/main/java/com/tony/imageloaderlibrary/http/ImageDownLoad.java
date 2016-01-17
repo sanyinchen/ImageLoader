@@ -7,11 +7,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.tony.imageloaderlibrary.cache.CacheBitmapAction;
 import com.tony.imageloaderlibrary.utils.CommonUtils;
 import com.tony.imageloaderlibrary.utils.StreamUtils;
 
@@ -57,24 +59,39 @@ public class ImageDownLoad {
                 return null;
             }
             Bitmap bitmap = null;
-            URLConnection downloadConnection = null;
+            HttpURLConnection downloadConnection = null;
             InputStream inputStream = null;
             try {
                 URL url = new URL(getOwner().downloadConfig.getUrl());
-                downloadConnection = url.openConnection();
+                CacheBitmapAction cacheBitmapAction = getOwner().downloadConfig.getCacheBitmapAction();
+                bitmap = cacheBitmapAction.getCachrBitmap(url.toString());
+                if (bitmap != null) {
+                    CommonUtils.log("hit cache!!!");
+                    return bitmap;
+                }
+                downloadConnection = (HttpURLConnection) url.openConnection();
                 inputStream = downloadConnection.getInputStream();
 
                 int length = downloadConnection.getContentLength();
-                byte[] data = new byte[length];
-                byte[] temp = new byte[2 * 1024];
-                int now = 0;
-                int readLength;
-                while ((readLength = inputStream.read(temp)) > 0) {
-                    System.arraycopy(temp, 0, data, now, readLength);
-                    now += readLength;
-                    publishProgress(Long.valueOf(now));
+                CommonUtils.log("length:" + length);
+                if (length == -1) {
+                    bitmap = BitmapFactory.decodeStream(inputStream);
+                    publishProgress(new Long[] {Long.valueOf(0), -1L, 0L});
+                } else {
+
+                    byte[] data = new byte[length];
+                    byte[] temp = new byte[2 * 1024];
+                    int now = 0;
+                    int readLength;
+                    while ((readLength = inputStream.read(temp)) > 0) {
+                        System.arraycopy(temp, 0, data, now, readLength);
+                        now += readLength;
+                        publishProgress(
+                                new Long[] {Long.valueOf(now), Long.valueOf(length), Long.valueOf(now) / length});
+                    }
+                    bitmap = BitmapFactory.decodeByteArray(data, 0, length);
                 }
-                bitmap = BitmapFactory.decodeByteArray(data, 0, length);
+                cacheBitmapAction.cacheBitmap(url.toString(), bitmap);
                 // BitmapFactory.decodeByteArray()
                 // publishProgress(Long.valueOf(0));
                 // OutputStreamWriter outputStreamWriter=new OutputStreamWriter(new O);
@@ -84,6 +101,9 @@ public class ImageDownLoad {
                 if (inputStream != null) {
                     StreamUtils.closeFile(inputStream);
                 }
+                if (downloadConnection != null) {
+                    downloadConnection.disconnect();
+                }
             }
             return bitmap;
         }
@@ -91,7 +111,7 @@ public class ImageDownLoad {
         @Override
         protected void onProgressUpdate(Long... values) {
             super.onProgressUpdate(values);
-            CommonUtils.log(values.length + "onProgressUpdate--" + values[0]);
+            // CommonUtils.log(values.length + "onProgressUpdate--" + values[0]);
         }
 
         @Override
@@ -119,7 +139,7 @@ public class ImageDownLoad {
     public interface ImageDownloadListener {
         void onSuccess(Bitmap bitmap);
 
-        void onProcess(int process);
+        void onProcess(int process, int total, int perCent);
 
         void onFail();
     }

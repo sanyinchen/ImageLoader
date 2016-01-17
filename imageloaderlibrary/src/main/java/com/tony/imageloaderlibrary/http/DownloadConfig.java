@@ -8,7 +8,6 @@ package com.tony.imageloaderlibrary.http;
  */
 public class DownloadConfig {
     private String url;
-
     public String getUrl() {
         return url;
     }
@@ -17,4 +16,5 @@ public class DownloadConfig {
 
         this.url = url;
     }
+
 }

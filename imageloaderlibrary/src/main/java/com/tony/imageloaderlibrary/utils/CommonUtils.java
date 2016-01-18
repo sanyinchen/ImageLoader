@@ -13,9 +13,10 @@ import android.util.Log;
  * Created by sanyinchen on 16/1/15.
  */
 public class CommonUtils {
-    public static void log(String msg){
-        Log.d("download_scromp",msg);
+    public static void log(String msg) {
+        Log.d("download_scromp", msg);
     }
+
     public static String getMD5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -27,9 +28,13 @@ public class CommonUtils {
                 hashtext = "0" + hashtext;
             }
             return hashtext;
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Long getPerCent(Long v1, Long v2) {
+
+        return (v1 * 100) / v2;
     }
 }

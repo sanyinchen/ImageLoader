@@ -87,7 +87,8 @@ public class ImageDownLoad {
                         System.arraycopy(temp, 0, data, now, readLength);
                         now += readLength;
                         publishProgress(
-                                new Long[] {Long.valueOf(now), Long.valueOf(length), Long.valueOf(now) / length});
+                                new Long[] {Long.valueOf(now), Long.valueOf(length), CommonUtils.getPerCent(Long
+                                        .valueOf(now), Long.valueOf(length))});
                     }
                     bitmap = BitmapFactory.decodeByteArray(data, 0, length);
                 }
@@ -112,6 +113,12 @@ public class ImageDownLoad {
         protected void onProgressUpdate(Long... values) {
             super.onProgressUpdate(values);
             // CommonUtils.log(values.length + "onProgressUpdate--" + values[0]);
+            if (getOwner() == null || getOwner().imageDownloadListener == null || values == null
+                    || values.length != 3) {
+                return;
+            }
+            getOwner().imageDownloadListener.onProcess(values[0], values[1], values[2]);
+
         }
 
         @Override
@@ -139,7 +146,7 @@ public class ImageDownLoad {
     public interface ImageDownloadListener {
         void onSuccess(Bitmap bitmap);
 
-        void onProcess(int process, int total, int perCent);
+        void onProcess(long process, long total, long perCent);
 
         void onFail();
     }

@@ -34,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onProcess(long process, long total, long perCent) {
+                CommonUtils.log("process:" + process + " total:" + total + " perCent:" + perCent + "%");
+            }
+
+            @Override
             public void onFail() {
                 imageView.setBackgroundResource(R.mipmap.ic_launcher);
             }
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onProcess(int process, int total, int perCent) {
+        public void onProcess(long process, long total, long perCent) {
 
         }
 

@@ -4,6 +4,21 @@ Hi,guys,this is a simple ImageLoader with caches.It can dowonload a image via yo
 ##USAGES
 	DownloadConfig downloadConfig = new DownloadConfig(testurl);
 	ImageLoader imageLoader = new ImageLoader(downloadConfig);
+	imageLoader.build(new DefaultImageDownloadListener() {
+            @Override
+            public void onSuccess(Bitmap bitmap) {
+                // do something
+            }
+            @Override
+            public void onProcess(long process, long total, long perCent) {
+                // do something
+            }
+            
+            @Override
+            public void onFail() {
+                // do something
+            }
+        });
 	imageLoader.startDownload();
 	
 It's very simply,yeah..you are right.

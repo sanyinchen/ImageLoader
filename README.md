@@ -21,7 +21,6 @@ Hi,guys,this is a simple ImageLoader with caches.It can dowonload a image via yo
         });
 	imageLoader.startDownload();
 	
-It's very simply,yeah..you are right.
 
 ## Summary  
 * If you have any question, welcome feedback.
